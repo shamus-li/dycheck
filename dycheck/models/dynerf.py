@@ -115,16 +115,14 @@ class DyNeRF(nn.Module):
         return max(self.embeddings_dict[self.rgb_embed_key]) + 1
 
     def setup(self):
-        points_embed_cls = common.tolerant_partial(
-            self.points_embed_cls, num_embeddings=self.num_points_embeds
+        self.points_embed = self.points_embed_cls(
+            num_embeddings=self.num_points_embeds
         )
-        self.points_embed = points_embed_cls()
 
         if self.use_rgb_embed:
-            rgb_embed_cls = common.tolerant_partial(
-                self.rgb_embed_cls, num_embeddings=self.num_rgb_embeds
+            self.rgb_embed = self.rgb_embed_cls(
+                num_embeddings=self.num_rgb_embeds
             )
-            self.rgb_embed = rgb_embed_cls()
 
         if self.use_viewdirs:
             self.viewdirs_embed = self.viewdirs_embed_cls()

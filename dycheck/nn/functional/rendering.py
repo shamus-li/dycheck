@@ -82,13 +82,16 @@ def volrend(
     # TODO(keunhong): Remove this hack.
     # NOTE(Hang Gao @ 07/15): Actually needed by Nerfies & HyperNeRF to always
     # stop by the scene bound otherwise it will not when trained without depth.
-    last_sample_t = 1e10 if use_sample_at_infinity else 1e-19
+    last_sample_t = jnp.array(
+        1e10 if use_sample_at_infinity else 1e-19,
+        dtype=samples.tvals.dtype,
+    )
 
     # (..., S, 1)
     dists = jnp.concatenate(
         [
             samples.tvals[..., 1:, :] - samples.tvals[..., :-1, :],
-            jnp.broadcast_to([last_sample_t], batch_shape[:-1] + (1, 1)),
+            jnp.broadcast_to(last_sample_t, batch_shape[:-1] + (1, 1)),
         ],
         -2,
     )

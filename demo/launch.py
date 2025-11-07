@@ -31,11 +31,11 @@ import gin
 import jax.numpy as jnp
 import tensorflow as tf
 from absl import app, flags, logging
-from flax import jax_utils, optim
+from flax import jax_utils
 from flax.training import checkpoints
 from jax import random
 
-from dycheck import core, geometry
+from dycheck import core, geometry, models
 from dycheck.core.tasks.video import Video
 from dycheck.utils import common, io, struct
 
@@ -126,12 +126,30 @@ def main(_):
         near=dataset.near,
         far=dataset.far,
     )
-    optimizer = optim.Adam(0).create(variables)
-    state = checkpoints.restore_checkpoint(
-        checkpoint_dir,
-        struct.TrainState(optimizer=optimizer),
-    )
-    pstate = jax_utils.replicate(state)
+    restored = checkpoints.restore_checkpoint(checkpoint_dir, target=None)
+    if restored and "optimizer" in restored:
+        restored_variables = restored["optimizer"].get("target", variables)
+        state_info = restored["optimizer"].get("state", {})
+        step = state_info.get("step")
+        step_value = (
+            step.item()
+            if hasattr(step, "item")
+            else int(step)
+            if isinstance(step, (int, float))
+            else step
+        )
+        logging.info(
+            "* Restored checkpoint %s at step %s.",
+            checkpoint_dir,
+            step_value if step is not None else "unknown",
+        )
+    else:
+        restored_variables = variables
+        logging.warning(
+            "* No checkpoint restored from %s, using initialized weights.",
+            checkpoint_dir,
+        )
+    pvariables = jax_utils.replicate(restored_variables)
 
     # In this demo, we are going to re-render a video given a `FLAGS.task`.
     # 1. FLAGS.task == "novel_view":
@@ -192,7 +210,7 @@ def main(_):
             metadata=metadata
         )
         rendered = prender_image(
-            pstate.optimizer.target,
+            pvariables,
             rays,
             key=key,
             show_pbar=False,

@@ -151,7 +151,7 @@ def _render_image(
         out = jax.tree_map(lambda x: x[: x.shape[0] - padding], out)
         results.append(out)
 
-    results = jax.tree_multimap(
+    results = jax.tree_map(
         lambda *x: jnp.concatenate(x, axis=0), *results
     )
     results = jax.tree_map(

@@ -17,7 +17,7 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
-from typing import NamedTuple, Optional
+from typing import Any, NamedTuple, Optional
 
 import flax
 import gin
@@ -58,7 +58,7 @@ class ExtraParams(NamedTuple):
 
 @flax.struct.dataclass
 class TrainState(object):
-    optimizer: flax.optim.Optimizer
+    optimizer: Any
 
 
 @flax.struct.dataclass

@@ -17,6 +17,7 @@
 # License for the specific language governing permissions and limitations under
 # the License.
 
+import importlib
 from typing import Callable, Optional, Sequence
 
 from flax import linen as nn
@@ -24,6 +25,27 @@ from flax import linen as nn
 from dycheck.datasets import Dataset
 from dycheck.utils import types
 
-from . import config, engines, losses, metrics, schedules, tasks, training
+from . import config, losses, metrics, schedules, tasks, training
 from .config import Config, parse_config_files_and_bindings
 from .tasks.functional.rendering import get_prender_image
+
+__all__ = [
+    "config",
+    "losses",
+    "metrics",
+    "schedules",
+    "tasks",
+    "training",
+    "Config",
+    "parse_config_files_and_bindings",
+    "get_prender_image",
+    "engines",
+]
+
+
+def __getattr__(name: str):
+    if name == "engines":
+        module = importlib.import_module(f"{__name__}.engines")
+        globals()[name] = module
+        return module
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

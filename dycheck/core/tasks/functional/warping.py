@@ -135,7 +135,7 @@ def _warp_points(
         out = jax.tree_map(lambda x: x[: x.shape[0] - padding], out)
         results.append(out)
 
-    results = jax.tree_multimap(
+    results = jax.tree_map(
         lambda *x: jnp.concatenate(x, axis=0), *results
     )
     results = jax.tree_map(
@@ -315,7 +315,7 @@ def _warp_pixels(
         out = jax.tree_map(lambda x: x[: x.shape[0] - padding], out)
         results.append(out)
 
-    results = jax.tree_multimap(
+    results = jax.tree_map(
         lambda *x: jnp.concatenate(x, axis=0), *results
     )
     results = jax.tree_map(

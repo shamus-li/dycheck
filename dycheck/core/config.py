@@ -20,7 +20,7 @@
 import dataclasses
 import logging
 import os.path as osp
-from typing import Callable, Optional, Sequence
+from typing import TYPE_CHECKING, Callable, Optional, Sequence
 
 import gin
 from flax import linen as nn
@@ -28,7 +28,8 @@ from flax import linen as nn
 from dycheck.datasets import Dataset
 from dycheck.utils import types
 
-from .engines import Engine
+if TYPE_CHECKING:
+    from .engines import Engine
 
 gin.add_config_file_search_path(
     osp.abspath(osp.join(osp.dirname(__file__), "..", "..", "configs"))
@@ -84,7 +85,7 @@ def parse_config_files_and_bindings(
 @gin.configurable()
 @dataclasses.dataclass
 class Config(object):
-    engine_cls: Callable[..., Engine] = gin.REQUIRED
+    engine_cls: Callable[..., "Engine"] = gin.REQUIRED
     dataset_cls: Callable[..., Dataset] = gin.REQUIRED
     model_cls: Callable[..., nn.Module] = gin.REQUIRED
     name: Optional[str] = None

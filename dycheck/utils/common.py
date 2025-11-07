@@ -142,7 +142,7 @@ def parallel_map(
 
 def tree_collate(trees: Sequence[Any], collate_fn=lambda *x: np.asarray(x)):
     """Collates a list of pytrees with the same structure."""
-    return jax.tree_multimap(collate_fn, *trees)
+    return jax.tree_map(collate_fn, *trees)
 
 
 def strided_subset(sequence: Sequence[Any], count: int) -> Sequence[Any]:
